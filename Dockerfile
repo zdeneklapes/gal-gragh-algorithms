@@ -1,4 +1,5 @@
 FROM python:3.11-slim-bullseye AS app
+WORKDIR /opt/app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -43,7 +44,4 @@ COPY pyproject.toml uv.lock .python-version /opt/app/
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --project /app
-
-COPY src /opt/src
-WORKDIR /opt/app
+    uv sync --frozen --project /opt/app
