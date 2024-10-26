@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 
-def generate_graph(num_nodes, edge_probability, max_weight=10, seed=None)->np.ndarray:
+def generate_graph(num_nodes, edge_probability, max_weight, seed=None)->np.ndarray:
     """
     Generates a weighted graph as an adjacency matrix.
 

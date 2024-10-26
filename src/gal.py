@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+from tqdm import tqdm
 
 
 @dataclass
@@ -29,7 +30,7 @@ def floyd_warshall_exact(graph: np.ndarray) -> AlgorithmResult:
     # Diagonal elements are always 0
     np.fill_diagonal(dist, 0)
 
-    for k in range(n):
+    for k in tqdm(range(n), desc="Running Exact Floyd-Warshall"):
         for i in range(n):
             for j in range(n):
                 dist[i, j] = min(dist[i, j], dist[i, k] + dist[k, j])
@@ -38,7 +39,7 @@ def floyd_warshall_exact(graph: np.ndarray) -> AlgorithmResult:
     return AlgorithmResult(graph=dist, elapsed_time=elapsed_time)
 
 
-def floyd_warshall_approx(graph: np.ndarray, num_samples=100) -> AlgorithmResult:
+def floyd_warshall_approx(graph: np.ndarray, iteration_modifier:float) -> AlgorithmResult:
     """
     Performs an approximate version of the Floyd-Warshall algorithm using Monte Carlo sampling.
 
@@ -56,7 +57,7 @@ def floyd_warshall_approx(graph: np.ndarray, num_samples=100) -> AlgorithmResult
     # Diagonal elements are always 0
     np.fill_diagonal(dist, 0)
 
-    for _ in range(num_samples):
+    for _ in tqdm(range(int(n*iteration_modifier)), desc="Running Approximate Floyd-Warshall"):
         # Randomly sample a node as the "intermediate" node
         k = np.random.randint(0, n)
         for i in range(n):
@@ -80,7 +81,7 @@ def load_graph_from_file(file_path: str) -> np.ndarray:
     return np.loadtxt(file_path)
 
 
-def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResult, tolerance: float = 1e-5):
+def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResult, tolerance:float):
     """
     Compares the results of the exact and approximate Floyd-Warshall algorithms.
 
@@ -102,7 +103,7 @@ def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResul
     accuracy = within_tolerance / num_elements * 100
 
     print(f"Approximation Accuracy: {accuracy:.2f}% of elements are within the tolerance of {tolerance}.")
-    print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds.")
+    print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Faster by {exact_result.elapsed_time / approx_result.elapsed_time:.2f}x")
 
 
 def save_result_to_file(result: AlgorithmResult, file_path: str):
@@ -126,11 +127,11 @@ def run_program(args):
     print(f"Exact Floyd-Warshall completed in {exact_result.elapsed_time:.6f} seconds")
 
     # Run the approximate Floyd-Warshall algorithm
-    approx_result = floyd_warshall_approx(graph)
+    approx_result = floyd_warshall_approx(graph, args.iteration_modifier)
     print(f"Approximate Floyd-Warshall completed in {approx_result.elapsed_time:.6f} seconds")
 
     # Compare the results of the exact and approximate algorithms
-    compare_results(exact_result, approx_result)
+    compare_results(exact_result, approx_result, args.tolerance)
 
     # Save results to the specified output files
     # save_result_to_file(exact_result, args.output_exact)
@@ -151,8 +152,22 @@ def parse_args():
         help='File path to the output file for the exact algorithm'
     )
     parser.add_argument(
+        '--iteration_modifier',
+        type=float,
+        default=2,
+        nargs='?',
+        help='File path to the output file for the approximate algorithm'
+    )
+    parser.add_argument(
         '--output_approx',
         type=str,
+        nargs='?',
+        help='File path to the output file for the approximate algorithm'
+    )
+    parser.add_argument(
+        '--tolerance',
+        type=float,
+        default=1e-3,
         nargs='?',
         help='File path to the output file for the approximate algorithm'
     )
