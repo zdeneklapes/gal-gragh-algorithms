@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+import os
+import re
+import csv
 from tqdm import tqdm
 
 
@@ -81,7 +84,7 @@ def load_graph_from_file(file_path: str) -> np.ndarray:
     return np.loadtxt(file_path)
 
 
-def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResult, tolerance:float):
+def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResult, tolerance:float, graph_path:str, csv_output:str, iteration_modifier:float):
     """
     Compares the results of the exact and approximate Floyd-Warshall algorithms.
 
@@ -99,11 +102,34 @@ def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResul
     num_elements = exact_graph.size
 
     # Calculate accuracy based on the number of elements within the tolerance
+    
     within_tolerance = np.sum(np.abs(exact_graph - approx_graph) <= tolerance)
     accuracy = within_tolerance / num_elements * 100
 
     print(f"Approximation Accuracy: {accuracy:.2f}% of elements are within the tolerance of {tolerance}.")
-    print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Faster by {exact_result.elapsed_time / approx_result.elapsed_time:.2f}x")
+
+    # If the dataset is too small, the approximative speedup tends to divide by zero.
+    try:
+        result = exact_result.elapsed_time / approx_result.elapsed_time
+        print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Faster by {result:.2f}x")
+    except:
+        print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Cannot calculate speedup due to division by zero.")
+
+    # Header can be created in the last merge, here we just care about numbers
+    # csv_header = ["Name", "Exact algorithm time", "Approximation algorithm time", "Accuracy", "Tolerance", "Iteration modifier"]
+
+    if(csv_output):
+        # Get the file name
+        file = os.path.basename(graph_path)
+        file_name = os.path.splitext(file)[0]
+
+        # Insert data into a csv format
+        csv_data = [file_name, f"{exact_result.elapsed_time:.6f}", f"{approx_result.elapsed_time:.6f}", f"{accuracy:.2f}", tolerance, iteration_modifier]
+        
+        csv_output = os.path.join(csv_output, file_name + ".csv")
+        with open(csv_output, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(csv_data)
 
 
 def save_result_to_file(result: AlgorithmResult, file_path: str):
@@ -131,7 +157,7 @@ def run_program(args):
     print(f"Approximate Floyd-Warshall completed in {approx_result.elapsed_time:.6f} seconds")
 
     # Compare the results of the exact and approximate algorithms
-    compare_results(exact_result, approx_result, args.tolerance)
+    compare_results(exact_result, approx_result, args.tolerance, args.graph_path, args.csv_output, args.iteration_modifier)
 
     # Save results to the specified output files
     if args.output_exact:
@@ -158,7 +184,7 @@ def parse_args():
     parser.add_argument(
         '--iteration_modifier',
         type=float,
-        default=2,
+        default=0.5,
         nargs='?',
         help='File path to the output file for the approximate algorithm'
     )
@@ -171,9 +197,14 @@ def parse_args():
     parser.add_argument(
         '--tolerance',
         type=float,
-        default=1e-3,
+        default=10,
         nargs='?',
         help='File path to the output file for the approximate algorithm'
+    )
+    parser.add_argument(
+        '--csv_output',
+        type=str,
+        help='File path to the output .csv file'
     )
     return parser.parse_args()
 

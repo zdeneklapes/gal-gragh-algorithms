@@ -79,7 +79,7 @@ def visualize_graph(graph, filename):
     assert filename.endswith(".png"), "filename must have .png extension"
     plt.savefig(filename)
     print(f"Graph visualization saved to {filename}")
-    plt.show()
+    #plt.show()
 
 def main():
     # Argument parsing

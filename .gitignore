@@ -2,8 +2,12 @@
 tmp/
 .venv/
 
-
 # Added by cargo
 *.txt
 *.png
 /target
+
+# Automatically generated folders
+/autogen_datasets
+/datasets
+/csv_data
