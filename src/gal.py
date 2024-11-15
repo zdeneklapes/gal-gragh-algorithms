@@ -134,8 +134,12 @@ def run_program(args):
     compare_results(exact_result, approx_result, args.tolerance)
 
     # Save results to the specified output files
-    # save_result_to_file(exact_result, args.output_exact)
-    # save_result_to_file(approx_result, args.output_approx)
+    if args.output_exact:
+        Path(args.output_exact).parent.mkdir(parents=True, exist_ok=True)
+        save_result_to_file(exact_result, args.output_exact)
+    if args.output_approx:
+        Path(args.output_approx).parent.mkdir(parents=True, exist_ok=True)
+        save_result_to_file(approx_result, args.output_approx)
 
 
 def parse_args():
@@ -176,10 +180,6 @@ def parse_args():
 
 def main():
     args = parse_args()
-    if args.output_exact:
-        Path(args.output_exact).parent.mkdir(parents=True, exist_ok=True)
-    if args.output_approx:
-        Path(args.output_approx).parent.mkdir(parents=True, exist_ok=True)
     run_program(args)
 
 
