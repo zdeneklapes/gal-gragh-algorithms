@@ -2,6 +2,7 @@ import argparse
 import time
 from dataclasses import dataclass
 from pathlib import Path
+import timeit
 
 import numpy as np
 import os
@@ -109,19 +110,23 @@ def compare_results(exact_result: AlgorithmResult, approx_result: AlgorithmResul
     print(f"Approximation Accuracy: {accuracy:.2f}% of elements are within the tolerance of {tolerance}.")
 
     # If the dataset is too small, the approximative speedup tends to divide by zero.
-    try:
-        result = exact_result.elapsed_time / approx_result.elapsed_time
-        print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Faster by {result:.2f}x")
-    except:
-        print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Cannot calculate speedup due to division by zero.")
+    # try:
+    result = exact_result.elapsed_time / approx_result.elapsed_time
+    print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Faster by {result:.2f}x")
+    # except ZeroDivisionError as e:
+    #     print(f"ERROR: {e}")
+    #     print(f"Time Comparison: Exact: {exact_result.elapsed_time:.6f} seconds, Approximate: {approx_result.elapsed_time:.6f} seconds. Cannot calculate speedup due to division by zero.")
 
     # Header can be created in the last merge, here we just care about numbers
     # csv_header = ["Name", "Exact algorithm time", "Approximation algorithm time", "Accuracy", "Tolerance", "Iteration modifier"]
 
     if(csv_output):
+        Path(csv_output).mkdir(parents=True, exist_ok=True)
+
         # Get the file name
         file = os.path.basename(graph_path)
-        file_name = os.path.splitext(file)[0]
+        file_name = os.path.splitext(file)[0] + f"-tolerance{tolerance}-iter{iteration_modifier}"
+        print(f"File name: {file_name}")
 
         # Insert data into a csv format
         csv_data = [file_name, f"{exact_result.elapsed_time:.6f}", f"{approx_result.elapsed_time:.6f}", f"{accuracy:.2f}", tolerance, iteration_modifier]
