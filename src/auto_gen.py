@@ -40,12 +40,10 @@ print(f"Max weight: {max_weight}")
 print(f"Seeds: {seeds}")
 
 # Try to delete preexisting files
-csv_files = glob.glob(os.path.join(output_folder, "*.csv"))
-for csv_file in csv_files:
-	try:
-		os.remove(csv_file)
-	except Exception as e:
-		print(e)
+txt_files = glob.glob(os.path.join(output_folder, "*.txt"))
+if txt_files:
+	for txt_file in txt_files:
+		os.remove(txt_file)
 
 def generate_graph(nodes, seed, probability, max_weight, output_folder):
 	# Define output paths
