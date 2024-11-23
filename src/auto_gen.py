@@ -52,7 +52,7 @@ def generate_graph(nodes, seed, probability, max_weight, output_folder):
 
 	# Command to be run
 	command = [
-		"python3", "src/dataset_generator.py",
+		"python3", "src/graph_generator.py",
 		"--nodes", str(nodes),
 		"--probability", str(probability),
 		"--max_weight", str(max_weight),
@@ -95,7 +95,7 @@ with ThreadPoolExecutor(MAX_WORKERS) as executor:
 #
 # 		# Command to be run
 # 		command = [
-# 			"python3", "src/dataset_generator.py",
+# 			"python3", "src/graph_generator.py",
 # 			"--nodes", str(nodes),
 # 			"--probability", str(probability),
 # 			"--max_weight", str(max_weight),
