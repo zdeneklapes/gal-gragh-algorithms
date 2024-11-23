@@ -71,8 +71,8 @@ MAX_WORKERS = os.cpu_count()
 with ThreadPoolExecutor(MAX_WORKERS) as executor:
 	futures = [
 		executor.submit(generate_graph, nodes, seed, probability, max_weight, output_folder)
-		for nodes in range(nodes[0], nodes[1])
-		for seed in range(seeds[0], seeds[1])
+		for nodes in range(nodes[0], nodes[1] + 1)
+		for seed in range(seeds[0], seeds[1] + 1)
 	]
 
 	# Wait for all futures to complete
