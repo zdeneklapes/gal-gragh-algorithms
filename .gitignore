@@ -4,6 +4,7 @@ tmp/
 
 # Added by cargo
 *.txt
+!requirements.txt
 *.png
 /target
 
@@ -11,3 +12,5 @@ tmp/
 /autogen_datasets
 /datasets
 /csv_data
+
+*.zip
